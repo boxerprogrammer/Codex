@@ -2,24 +2,24 @@
 
 **C++20 / DirectX 12の教育用エンジンと、対応する専門学校向け教材を段階的に作るための指示・設計文書一式**です。作成日：2026-11-25。
 
-**M02まで検証済み**です。Windows x64でC++20の環境確認プログラムと、DirectX 12で背景色を表示するウィンドウをビルドして実行できます。次はM03の三角形描画です。
+**Visual Studio 2026でM02まで検証済み**です。Windows x64でC++20の環境確認プログラムと、DirectX 12で背景色を表示するウィンドウをビルドして実行できます。次はM03の三角形描画です。
 
 ## 1. 最初にすること
 
-Windows x64でVisual Studio 2022の「C++によるデスクトップ開発」、Windows SDK、CMake 3.21以上を用意します。M00で使った組み合わせは、Visual Studio Community 2022 17.14.23、Windows SDK 10.0.26100.0、Visual Studio同梱のCMake / CTest 3.31.6-msvc6です。
+Windows x64でVisual Studio 2026の「C++によるデスクトップ開発」、MSVC v145、Windows SDKを用意します。共有プリセットには CMake / CTest 4.2以上が必要です。検証にはVisual Studio 2026同梱のCMake / CTest 4.3.1-msvc1とWindows SDK 10.0.26100.0を使用しました。 [検証環境の詳細](docs/DEPENDENCIES.md#24-visual-studio-2026の実測記録)
 
-プロジェクトのルートでPowerShellを開きます。`cmake --version` と `ctest --version` で使うツールを確認してください。同梱版を使う場合は、Visual Studioのインストール先にある `Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin` を現在のシェルの `PATH` の先頭に追加できます。
+プロジェクトのルートでPowerShellを開きます。`cmake --version` と `ctest --version` で使うツールを確認してください。同梱版を使う場合は、Visual Studio 2026のインストール先にある `Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin` を現在のシェルの `PATH` の先頭に追加できます。
 
 ```powershell
 cmake --list-presets=all
 cmake --preset windows-x64
 cmake --build --preset windows-debug
 ctest --preset windows-debug
-.\build\windows-x64\Debug\edu_environment_check.exe
-.\build\windows-x64\Debug\clear_window.exe
+.\build\vs2026-x64\Debug\edu_environment_check.exe
+.\build\vs2026-x64\Debug\clear_window.exe
 ```
 
-プリセットは繰り返し使うビルド設定に名前を付けたものです。configureはソースから直接実行ファイルを作る前に、ビルドに必要な設定を調べ、Visual Studio用のプロジェクトを `build/windows-x64/` に生成します。環境確認プログラムを実行すると `C++ language version: 202002` と表示されます。Releaseも同じ生成先を使います。ビルドとテストのプリセット名を `windows-release` に変え、実行ファイルは `Release` フォルダから起動します。
+プリセットは繰り返し使うビルド設定に名前を付けたものです。configureはビルドに必要な設定を調べ、Visual Studio 2026用のプロジェクトを `build/vs2026-x64/` に生成します。環境確認プログラムを実行すると `C++ language version: 202002` と表示されます。Releaseも同じ生成先を使います。ビルドとテストのプリセット名を `windows-release` に変え、実行ファイルは `Release` フォルダから起動します。
 
 `clear_window.exe` を起動すると、`Edu DX12 Engine - M02` と表示されたウィンドウに青い背景が出ます。起動コマンドの末尾に `--warm` を付けると、オレンジの背景を表示します。ウィンドウの枠をドラッグすると、PowerShellにクライアント領域（枠やタイトルバーを除く内側）と描画先の寸法が出ます。最小化中は描画を休止し、復帰すると再開します。閉じるボタンまたは Alt+F4 で終了します。
 
@@ -28,12 +28,12 @@ ctest --preset windows-debug
 描画用SDKのチェックとDirectX 12サンプルの生成を省き、CPU側だけを調べるときは別の生成先を使います。WindowsのMSVCコンパイラ自体が必要とするWindows SDKは引き続き必要です。
 
 ```powershell
-cmake --preset windows-x64 -B build/cpu-only -DEDU_CHECK_WINDOWS_SDK=OFF
-cmake --build build/cpu-only --config Debug --target edu_environment_check
-ctest --test-dir build/cpu-only -C Debug --output-on-failure
+cmake --preset windows-x64 -B build/cpu-only-vs2026 -DEDU_CHECK_WINDOWS_SDK=OFF
+cmake --build build/cpu-only-vs2026 --config Debug --target edu_environment_check
+ctest --test-dir build/cpu-only-vs2026 -C Debug --output-on-failure
 ```
 
-検証結果は [STATUS.md](docs/STATUS.md)、実測した版・コマンド・ログは [DEPENDENCIES.md](docs/DEPENDENCIES.md#23-m00の実測記録) にあります。次の開発依頼には [CONTINUE_DEVELOPMENT.md](prompts/CONTINUE_DEVELOPMENT.md) を使えます。
+検証結果、実測した版、コマンド、ログは以下を参照してください。 [STATUS.md](docs/STATUS.md) · [DEPENDENCIES.md](docs/DEPENDENCIES.md#24-visual-studio-2026の実測記録)
 
 既存リポジトリへ導入する場合は、既存の`AGENTS.md`等を先に読み、必要な方針を統合します。他のプロジェクトの指示や未コミット変更を無条件に上書きしないでください。
 

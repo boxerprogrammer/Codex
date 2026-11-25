@@ -1,17 +1,18 @@
 {
   "version": 3,
   "cmakeMinimumRequired": {
-    "major": 3,
-    "minor": 21,
+    "major": 4,
+    "minor": 2,
     "patch": 0
   },
   "configurePresets": [
     {
       "name": "windows-x64",
-      "displayName": "Visual Studio 2022 / Windows x64",
-      "generator": "Visual Studio 17 2022",
+      "displayName": "Visual Studio 2026 / Windows x64",
+      "generator": "Visual Studio 18 2026",
       "architecture": "x64",
-      "binaryDir": "${sourceDir}/build/windows-x64",
+      "toolset": "v145",
+      "binaryDir": "${sourceDir}/build/vs2026-x64",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",

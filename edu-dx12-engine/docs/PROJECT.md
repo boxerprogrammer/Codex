@@ -22,6 +22,7 @@
 | 要件 | 準備段階の扱い | 主な段階 |
 | --- | --- | --- |
 | C++20 / DirectX 12 / HLSL | 必須。C++例もC++20を守る | 全体 |
+| Visual Studio 2026 | Windows x64での実装・検証対象 | 全体 |
 | PBR / Unlit切替 | 最終版で必須。PBRは直接光の基本形から | M06 / M08 |
 | 簡易RenderGraph / FrameGraph | 必須。教育向けに限定した仕様 | M07 |
 | ImGui | インスペクタ・デバッグ・リソース表示に導入 | M09 |
@@ -36,7 +37,7 @@
 
 以下は、ユーザーが詳細まで指定した事実ではなく、この準備パックの推奨初期案。根拠と変更条件は[DECISIONS.md](DECISIONS.md)に記録する。
 
-- Windows x64 / MSVC / CMake。Visual Studio 2022以降を候補とし、実際の環境をM00で記録する。
+- Windows x64の共通CMakeプリセットは、Visual Studio 2026のMSVC v145を使う。検証環境の具体版は依存関係の文書に記録する。 [実測記録](DEPENDENCIES.md#24-visual-studio-2026の実測記録)
 - Nodeの小さな派生クラスとデータの合成。汎用Componentシステム・ECSは最初に導入しない。
 - Sceneがrootを単一所有し、Nodeが子を単一所有。共有素材はResource、描画GPU資産の寿命はRendererで管理する。
 - DirectX 12専用の分かりやすい実装から始める。複数描画APIを抽象化するRHIは作らない。

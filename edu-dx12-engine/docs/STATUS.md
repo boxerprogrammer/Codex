@@ -1,6 +1,6 @@
 # 進捗と次の作業
 
-最終更新 2026-11-25。M02のDirectX 12による背景色描画までWindows x64と実GPUで検証済み。
+最終更新 2026-11-25。Visual Studio 2026 / MSVC v145を対象に、M02の背景色描画までWindows x64と実GPUで再検証済み。
 
 ## 現在地
 
@@ -12,7 +12,7 @@
 | CMake / 環境確認プログラム | 作成済み。Windows x64のDebug・Releaseでビルド・実行を確認 |
 | エンジンソース / shader | Win32の `Window` とD3D12の `ClearRenderer` を `clear_window` から使用。シェーダはM03から |
 | 依存版の固定 | ツールの実測版を記録済み。第三者ライブラリの採用版は各導入段階で決定 |
-| Windows環境・GPU確認 | MSVC / SDK / CMake / MSBuildとGPUの機種・ドライバ版を確認 |
+| Windows環境・GPU確認 | Visual Studio 2026 / MSVC v145 / SDK / CMake / MSBuildとGPUの機種・ドライバ版を確認 |
 | DX12実行確認 | NVIDIA GeForce RTX 2070 SUPERで背景色を確認。Debug Layerを有効にした実行で警告・エラーなし |
 | 次に実行する段階 | M03の三角形描画とUnlitの基礎 |
 
@@ -22,7 +22,7 @@
 | --- | --- | --- | --- |
 | M00 | 環境・build方針 | 検証済み | [環境・終了コード・ログ](DEPENDENCIES.md#23-m00の実測記録) |
 | M01 | Win32ウィンドウ | 検証済み | [起動・操作・終了の記録](#2026-11-25-m01の作業記録) |
-| M02 | DX12 clear | 検証済み | [表示・リサイズ・終了の記録](#2026-11-25-m02の作業記録) |
+| M02 | DX12 clear | 検証済み | [Visual Studio 2026での再検証](#2026-11-25-visual-studio-2026への移行) |
 | M03 | 三角形・Unlit基礎 | 未着手 | なし |
 | M04 | frame context・同期 | 未着手 | なし |
 | M05 | Node / Scene / Resource | 未着手 | なし |
@@ -38,6 +38,12 @@
 ## 直近の次の一手
 
 M03でDXCの利用可能な版とシェーダ設定を確認し、頂点色付きの三角形を表示する。 [M03の受入条件](ROADMAP.md#m03-最初の三角形)
+
+## 2026-11-25 Visual Studio 2026への移行
+
+- ユーザー指定に合わせ、共有プリセットのジェネレーターを `Visual Studio 18 2026`、MSVCツールセットを `v145` に変更した。出力先は `build/vs2026-x64/`。 [D015](DECISIONS.md#d015-visual-studio-2026への移行)
+- Community 2026とBuild Tools 2026で、Windows SDK 10.0.26100.0と同梱CMake / CTest 4.3.1-msvc1を使用した。Debug・Releaseともビルドは終了0で、C++20の環境確認は各1/1件合格。CPUのみの構成でも1/1件合格。
+- RTX 2070 SUPER上で両環境・両構成の計8回を実行し、青とオレンジの表示、リサイズ、最小化からの復帰、最小化したままの終了を確認した。Debug版の警告・エラー・破損診断は0件だった。ウィンドウ操作はWindows APIで実施した。 [環境・コマンド・終了コード・ログ](DEPENDENCIES.md#24-visual-studio-2026の実測記録)
 
 ## 2026-11-25 M02の作業記録
 

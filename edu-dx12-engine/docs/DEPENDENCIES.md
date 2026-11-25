@@ -14,7 +14,7 @@
 
 ## 1. 基本方針
 
-1. Windows x64 / MSVC / C++20 / DirectX 12を標準の実行環境とする。学校で使用するVisual Studio 2022以降の具体的な版を確認し、授業の基準環境を一つ決める。
+1. Windows x64 / Visual Studio 2026 / MSVC v145 / C++20 / DirectX 12を標準の実行環境とする。教員PCと学生PCの実際のツールの版は検証時に記録する。
 2. バージョン番号は、インターネットで見つけた最新番号をそのまま採用しない。採用するヘッダ・ライブラリ・サンプル・ドキュメントの組み合わせを固定する。
 3. M00は環境の記録とCMakeの土台まで。ImGui・Lua・Effekseer等を一括取得しない。各機能を学ぶマイルストーンで一つずつ導入する。
 4. 第三者APIを推測して書かない。固定した版のヘッダと公式サンプルを確認してから、エンジン側の小さな接続クラスを実装する。
@@ -49,13 +49,15 @@ Visual Studioの「C++によるデスクトップ開発」とCMake toolsの導�
 
 M00の `CMakeLists.txt` と `CMakePresets.json` は次の構成を定義する。
 
-- configure用の `windows-x64` と、ビルド・テスト用の `windows-debug` / `windows-release`。
+- configure用の `windows-x64` と、ビルド・テスト用の `windows-debug` / `windows-release`。configureは `Visual Studio 18 2026` と `v145` を指定し、出力先は `build/vs2026-x64/`。共有プリセットはCMake / CTest 4.2以上で使う。 [CMakeのVisual Studio 2026ジェネレーター](https://cmake.org/cmake/help/latest/generator/Visual%20Studio%2018%202026.html)
 - どのOSでも標準C++だけを使う `edu_environment_check` ターゲット。C++20の指定漏れはコンパイル時に検出し、実行すると言語モードの値を表示する。
 - WindowsでD3D12とDXGIのヘッダ・ライブラリを確認するconfigure時のチェック。SDKの描画用部分に問題がある場合、`-DEDU_CHECK_WINDOWS_SDK=OFF` でCPUターゲットだけを調べられる。MSVC自体が必要とするWindows SDKは引き続き必要。
 
-Linux等ではWindows用プリセットの代わりに `cmake -S . -B build/cpu` でCPUターゲットを構成できる。M00で実行した環境はWindows x64。
+Linux等ではCMake 3.21以上で `cmake -S . -B build/cpu` を実行してCPUターゲットを直接構成できる。M00で実行した環境はWindows x64。
 
 ### 2.3 M00の実測記録
+
+以下はVisual Studio 2022を使用した初回検証の記録。現在のVisual Studio 2026での再検証は2.4節に記録する。
 
 | 項目 | 2026-11-25の検証環境 |
 | --- | --- |
@@ -89,6 +91,28 @@ Visual Studio同梱のCMake / CTestが入ったディレクトリを現在のPow
 | `cmake --preset windows-x64 -B build/sdk-check-failure -DEDU_WINDOWS_SDK_CAN_LINK=FALSE` | 1（期待値） | 検査の失敗をキャッシュ値で模擬。SDKの確認とCPUのみで検証する指定を案内してconfigure停止。 `configure-sdk-check-failure.log` |
 
 初回ビルドでは日本語コメントの文字コード警告 C4819 が出た。MSVCに `/utf-8` を指定してビルドをやり直し、上表の各構成で警告が消えたことを確認した。通常のPATHにあったMinGWの `g++ --version` は、システムDLLの再配置エラーで起動できなかった。CIMによるOS情報取得はアクセス制限で失敗したため、OSビルドは `ver` とレジストリで取得した。
+
+### 2.4 Visual Studio 2026の実測記録
+
+| 項目 | 2026-11-25の検証環境 |
+| --- | --- |
+| IDEおよびビルドツール | Community 2026 18.10.3、MSBuild 18.10.1.42706。共有プリセットによる自動選択ではBuild Tools 2026 18.11.2、MSBuild 18.11.1.51303を使用 |
+| MSVC | 両環境ともv145、ツールセットディレクトリ 14.51.36231、CMakeのコンパイラ識別値 19.51.36260.0、ターゲットx64 |
+| CMake / CTest | Visual Studio 2026同梱の4.3.1-msvc1。共有プリセットの最低版は4.2 |
+| OS・SDK・GPU | Windows x64 26H2、Windows SDK 10.0.26100.0、NVIDIA GeForce RTX 2070 SUPER、ドライバ32.0.16.1088 |
+
+検証したクローンのプロジェクトルートで、Visual Studio 2026同梱のCMake / CTestを使用した。出力ログと実行時の画面は `build/logs/` 以下にある。
+
+| 操作 | 終了 | 結果とログ |
+| --- | --- | --- |
+| `cmake --list-presets=all`、`cmake --preset windows-x64` | 各0 | `Visual Studio 18 2026` / `v145` でSDKチェックを通過。 `vs2026-presets.log`、`vs2026-configure.log` |
+| `cmake --build --preset windows-debug`、`cmake --build --preset windows-release` | 各0 | 両構成でビルド成功。 `vs2026-build-debug.log`、`vs2026-build-release.log` |
+| `ctest --preset windows-debug -V`、`ctest --preset windows-release -V` | 各0 | 各1/1件合格し、C++言語モードは `202002`。 `vs2026-test-debug.log`、`vs2026-test-release.log` |
+| `cmake --preset windows-x64 -B build/vs2026-community-x64 -D "CMAKE_GENERATOR_INSTANCE=C:/Program Files/Microsoft Visual Studio/18/Community"` | 0 | Community 2026を指定してSDKチェックを通過。 `vs2026-community-configure.log` |
+| `cmake --build build/vs2026-community-x64 --config <構成>`、`ctest --test-dir build/vs2026-community-x64 -C <構成> --output-on-failure` | 各0 | Debug・Releaseをビルドし、各1/1件合格。 `vs2026-community-build-*.log`、`vs2026-community-test-*.log` |
+| `python build/logs/vs2026-d3d12-smoke.py <構成> <生成先名>` | 各0 | DebugとReleaseを `vs2026-x64` と `vs2026-community-x64` で実行。両色の表示、拡大・縮小、最小化・復帰、終了を実GPUで確認。 `vs2026*-smoke-*.log` |
+| `cmake --preset windows-x64 -B build/cpu-only-vs2026 -DEDU_CHECK_WINDOWS_SDK=OFF`、`cmake --build build/cpu-only-vs2026 --config Debug --target edu_environment_check`、`ctest --test-dir build/cpu-only-vs2026 -C Debug --output-on-failure` | 各0 | CPUのみの構成でも1/1件合格。 `vs2026-*-cpu-only.log` |
+| CMake 3.31.6-msvc6で `cmake --list-presets=all` | 1（期待値） | 共有プリセットの最低バージョン要件で停止。 `vs2026-old-cmake.log` |
 
 ## 3. 導入する順序
 
