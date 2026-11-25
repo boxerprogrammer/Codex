@@ -1,0 +1,7 @@
+interface:
+  display_name: "教育用DX12エンジン開発"
+  short_description: "C++20とDirectX 12の教育用エンジン設計・実装・教材化を支援"
+  default_prompt: "$build-educational-dx12-engine を使い、現在の段階に合わせて開発または教材執筆を進めてください。"
+
+policy:
+  allow_implicit_invocation: false
